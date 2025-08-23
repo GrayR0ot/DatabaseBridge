@@ -1,0 +1,99 @@
+plugins {
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
+    id 'maven-publish'
+}
+
+java {
+    withSourcesJar()
+}
+
+group 'DatabaseBridge'
+
+project.ext {
+    targetFolder = file("target/")
+    buildVersion = System.getenv("BUILD_NUMBER") == null ? "Unknown" : "b" + System.getenv("BUILD_NUMBER")
+}
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(8))
+    }
+}
+
+task checkDebug() {
+    Set<File> filesWithDebug = fileTree('src/main/java').filter { file ->
+        file.text.contains('Bukkit.broadcastMessage')
+    }.getFiles()
+
+    if (!filesWithDebug.isEmpty())
+        throw new GradleException("Found debug messages: " + filesWithDebug)
+}
+
+repositories {
+    mavenCentral()
+    maven { url 'https://repo.bg-software.com/repository/nms/' }
+    maven { url 'https://repo.bg-software.com/repository/common/' }
+}
+
+dependencies {
+    compileOnly 'com.bgsoftware.common.annotations:Annotations:b2'
+
+    compileOnly "org.spigotmc:v1_8_R3-Taco:latest"
+
+
+    implementation 'com.zaxxer:HikariCP:4.0.3'
+    implementation 'org.slf4j:slf4j-api:2.0.17'
+}
+
+shadowJar {
+    dependsOn(jar)
+
+    relocate 'com.zaxxer.hikari', 'com.bgsoftware.common.databasebridge.libs.com.zaxxer.hikari'
+
+    archiveFileName = rootProject.name + "-" + rootProject.buildVersion + ".jar"
+
+    delete fileTree(rootProject.targetFolder.getAbsolutePath())
+
+    exclude '*exclude.jar'
+
+    destinationDirectory = rootProject.targetFolder
+    from sourceSets.getByName("main").output
+    configurations = [project.configurations.getByName("runtimeClasspath")]
+}
+
+build {
+    dependsOn checkDebug
+    dependsOn shadowJar
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = 'com.bgsoftware.common.databasebridge'
+            artifactId = 'ShopsBridge'
+            version = rootProject.buildVersion
+
+            from components.java
+        }
+    }
+
+    repositories {
+        String mavenUsername = System.getenv('mavenUsername');
+        String mavenPassword = System.getenv('mavenPassword');
+
+        if (mavenUsername != null && mavenPassword != null) {
+            maven {
+                url 'https://repo.bg-software.com/repository/common/'
+                credentials {
+                    username mavenUsername
+                    password mavenPassword
+                }
+            }
+        }
+    }
+}
+
+publish.shouldRunAfter shadowJar
+shadowJar.shouldRunAfter build
+build.shouldRunAfter subprojects.build
