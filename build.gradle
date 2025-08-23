@@ -71,7 +71,7 @@ publishing {
     publications {
         maven(MavenPublication) {
             groupId = 'com.bgsoftware.common.databasebridge'
-            artifactId = 'ShopsBridge'
+            artifactId = 'DatabaseBridge'
             version = rootProject.buildVersion
 
             from components.java
