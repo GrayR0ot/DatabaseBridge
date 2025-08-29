@@ -73,18 +73,13 @@ public class SQLiteDatabaseSession extends SQLDatabaseSession<SQLiteDatabaseSess
         }
     }
 
-    private class SQLiteHikariDataSource extends HikariDataSource {
+    private static class SQLiteHikariDataSource extends HikariDataSource {
 
         @Nullable
         private Connection connection;
 
         private SQLiteHikariDataSource(Connection connection) {
             this.connection = connection;
-            try {
-                SQLiteDatabaseSession.this.args.getLogger().info("Connection: " + this.connection.isClosed());
-            } catch (SQLException error) {
-                error.printStackTrace();
-            }
         }
 
         @Override
@@ -102,7 +97,6 @@ public class SQLiteDatabaseSession extends SQLDatabaseSession<SQLiteDatabaseSess
 
         @Override
         public void close() {
-            SQLiteDatabaseSession.this.args.getLogger().info("Closing connection!");
             try {
                 this.connection.close();
             } catch (Throwable error) {
