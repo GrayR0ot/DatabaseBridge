@@ -3,6 +3,7 @@ package com.bgsoftware.common.databasebridge;
 import com.bgsoftware.common.databasebridge.session.IDatabaseSession;
 import com.bgsoftware.common.databasebridge.sql.session.MariaDBDatabaseSession;
 import com.bgsoftware.common.databasebridge.sql.session.MySQLDatabaseSession;
+import com.bgsoftware.common.databasebridge.sql.session.PostgreSQLDatabaseSession;
 import com.bgsoftware.common.databasebridge.sql.session.SQLiteDatabaseSession;
 
 import java.util.Collections;
@@ -26,6 +27,7 @@ public class DatabaseSessionFactory {
 
         creatorsMap.put(MariaDBDatabaseSession.Args.class, MariaDBDatabaseSession::createSession);
         creatorsMap.put(MySQLDatabaseSession.Args.class, MySQLDatabaseSession::createSession);
+        creatorsMap.put(PostgreSQLDatabaseSession.Args.class, PostgreSQLDatabaseSession::createSession);
         creatorsMap.put(SQLiteDatabaseSession.Args.class, SQLiteDatabaseSession::createSession);
 
         return Collections.unmodifiableMap(creatorsMap);
