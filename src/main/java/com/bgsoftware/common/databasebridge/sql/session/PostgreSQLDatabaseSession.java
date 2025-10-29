@@ -34,7 +34,7 @@ public class PostgreSQLDatabaseSession extends SQLDatabaseSession<PostgreSQLData
 
             config.setDriverClassName("org.postgresql.Driver");
 
-            config.setJdbcUrl(String.format("jdbc:postgresql://%s:%d/%s?sslmode=%b",
+            config.setJdbcUrl(String.format("jdbc:postgresql://%s:%d/%s?sslmode=%s",
                     args.address, args.port, args.dbName, args.sslMode));
             config.setUsername(args.userName);
             config.setPassword(args.password);
